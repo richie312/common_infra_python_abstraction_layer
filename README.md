@@ -1,6 +1,6 @@
 # Automated_Video_Upload_Streaming_Service
 Automated Video upload streaming services plan using kafka, api, redis and backend jobs managed by airflow.
-![alt text](./images/distributed_system.png)- [Automated\_Video\_Upload\_Streaming\_Service](#automated_video_upload_streaming_service)
+![alt text](.\images\distributed_system.png)- [Automated\_Video\_Upload\_Streaming\_Service](#automated_video_upload_streaming_service)
 
 ## Backend Jobs Managed By Airflow
 
@@ -23,4 +23,10 @@ Automated Video upload streaming services plan using kafka, api, redis and backe
     a. Database for kafka, airflow and redis.
     b. Database for API, preffeably mongo or cosmos db.
 
+## Container
 
+All of the services are running on containers and final built image is published to the docker hub.
+
+## Kubernetes Deployment
+
+The entire deployment is through kubernetes. Each of the above container will be pulled as an image to deploy pod as service in kubernetes environment.
