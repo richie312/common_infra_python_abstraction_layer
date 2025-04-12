@@ -1,0 +1,25 @@
+Microservice,Action,Date,Release_Version,Status
+Kafka-Flask Setup,,24/10/2024,1,Done
+Kafka-Flask Setup,Setup of kafka with docker,25/10/2024,1,Done
+Kafka-Flask Setup,flask middleware to produce msgs to kafka topics,25/10/2024,1,Done
+Kafka-Flask Setup,flask middleware to receive msgs to subscribed kafka topic,28/10/2024,1,InProgress
+Kafka-Flask Setup,pass msg as payload to django url,28/10/2025,1,YTD
+Redis Cache Server,Setting up redis cache server with docker,28/10/2026,1,YTD
+Redis Cache Server,integration of flask and redis,29/10/2027,1,YTD
+Redis Cache Server,test case to check if redis returning the response before hitting django url,30/10/2028,1,YTD
+Airflow Setup,airflow setup with docker,31/10/2024,1,YTD
+Airflow Setup,integration of airflow job as part of flask background tasks,,1,YTD
+Airflow Setup,integration of airflow job as part of flask background tasks,,1,YTD
+Mongo DB Setup,Mongodb with docker,,1,YTD
+Mongo DB Setup,Flask Integration with Mongo,,1,YTD
+Flask UI Setup,Flask Home page for retirement,,1,YTD
+Flask UI Setup,Deployment,,1,YTD
+Kubernetes Deployment,Kafka Pod,,2,YTD
+Kubernetes Deployment,redis pod,,2,YTD
+Kubernetes Deployment,flask pod,,2,YTD
+Kubernetes Deployment,mongodb pod,,2,YTD
+Kubernetes Deployment,mysql db pod,,2,YTD
+Kubernetes Deployment,Airflow pod,,2,YTD
+Flask UI Setup,Chat Bot Integration,,3,YTD
+Flask UI Setup,Analytics Detail Report,,3,YTD
+Airflow Setup,Airflow Job Integration with user interface,,3,YTD

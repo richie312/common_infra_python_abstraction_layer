@@ -1,10 +1,14 @@
-# Automated_Video_Upload_Streaming_Service
-Automated Video upload streaming services plan using kafka, api, redis and backend jobs managed by airflow.
-![alt text](.\images\distributed_system.png)- [Automated\_Video\_Upload\_Streaming\_Service](#automated_video_upload_streaming_service)
+# Retirement Portfolio Solution
+Retirement Portfolio Solution service plan using kafka, api, redis and backend jobs managed by airflow.
+![alt text](.\images\distributed_system.png)- 
 
 ## Backend Jobs Managed By Airflow
 
 ![alt text](./images/AI_YouTube_Video_Upload.png)
+
+## Timeline
+![alt text](./images/microservice_actions_over_time.png)
+
 
 ## Kafka Streaming Service
 
