@@ -1,16 +1,22 @@
 import json
+import redis
 from flask import Flask, request, jsonify
-from kafka_flask_server.kafka_producer import produce_message, consume_messages
+from kafka_flask_server.kafka_producer import produce_message, consume_messages, create_topic
 from confluent_kafka import Consumer, KafkaException, KafkaError
 
 
 app = Flask(__name__)
 
+# Instantiate Redis client
+redis_client = redis.StrictRedis(host='localhost', port=6379, db=0, decode_responses=True)
+
 
 def produce(topic,key,msg):
     if not topic or not msg:
         return jsonify({'error': 'Topic and value are required'}), 400
-
+    # create topic if not exist
+    create_topic(topic)
+    # produce topic
     produce_message(topic, key, msg)
     return jsonify({'status': 'Message produced'}), 200
 
@@ -29,10 +35,18 @@ def produce_data():
 def consume():
     topic = request.args.get('topic', 'test-topic')  # Default to 'test-topic' if no topic is provided
     try:
-        consume_messages(topic)
-        return jsonify({'status': f'Consuming messages from topic: {topic}'}), 200
+        msg = consume_messages(topic)
+        # Save the message to Redis
+        if msg is not None:
+            redis_client.rpush('messages', msg)
+        
+        # Retrieve all messages from Redis
+        all_messages = redis_client.lrange('messages', 0, -1)
+        collection = {"data": all_messages}
+        #TODO set expiration to delete messages from redis
+        return jsonify(collection), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(host = '0.0.0.0',debug=True,port=5003)
+    app.run(host = '0.0.0.0',debug=True,port=5000)
