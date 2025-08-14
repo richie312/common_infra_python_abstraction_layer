@@ -18,12 +18,18 @@ jobs:
       # Step 3: Install dependencies for building the Python package
       - name: Install Build Tools
         run: |
-          python3 -m pip install --upgrade --user pip setuptools wheel twine
+          python3 -m pip install --upgrade --user pip setuptools wheel twine --prefix /home/github-runner/custom-python-packages
 
+      # add the directory to PATH
+      - name: Add Custom Python Path
+        run: |
+          export PATH=/home/github-runner/custom-python-packages/bin:$PATH
+          
       # Step 4: Build the Python package
       - name: Build Python Package
         run: |
           python3 setup.py sdist bdist_wheel
+
 
       # Step 6: Upload the package to the self-hosted PyPI server
       - name: Upload to Self-Hosted PyPI
@@ -31,7 +37,7 @@ jobs:
           TWINE_USERNAME: $PYPI_USERNAME
           TWINE_PASSWORD: $PYPI_PASSWORD
         run: |
-          python3 -m twine upload --repository-url $PYPI_URL dist/*
+          twine upload --repository-url $PYPI_URL dist/*
 
       # Step 7: Log in to Docker Hub
       - name: Log in to Docker Hub
