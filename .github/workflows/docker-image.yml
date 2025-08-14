@@ -1,69 +1,67 @@
 name: On PR Merge - Build and Deploy
 
 on:
-  push:
-    branches: [ "main" ]
   pull_request:
-    branches: [ "main" ]
+    types:
+      - closed  # Trigger when a PR is closed
 
 jobs:
   build-and-deploy:
     if: github.event.pull_request.merged == true  # Only run if the PR was merged
     runs-on: self-hosted  # Use your self-hosted runner or GitHub-hosted runner
 
-    env:
-      PYPI_URL: http://192.168.1.4:8080/  # Replace with your self-hosted PyPI server URL
-      PYPI_USERNAME: your-pypi-username   # Replace with your PyPI username
-      PYPI_PASSWORD: ${{ env.PYPI_PASSWORD }}  # Store the password in GitHub Secrets
-      DOCKER_USERNAME: ${{ env.DOCKER_USERNAME }}  # Store Docker Hub username in GitHub Secrets
-      DOCKER_PASSWORD: ${{ env.DOCKER_PASSWORD }}  # Store Docker Hub password in GitHub Secrets
-      DOCKER_IMAGE_NAME: ${{ env.DOCKER_USERNAME }}/common_infra  # Replace with your Docker Hub image name
-
     steps:
       # Step 1: Checkout the code
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      # Step 2: Set up Python environment
+      # Step 2: Load environment variables from .env file
+      - name: Load .env file
+        run: |
+          set -o allexport
+          source .env
+          set +o allexport
+
+      # Step 3: Set up Python environment
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: 3.9  # Specify the Python version
 
-      # Step 3: Install dependencies for building the Python package
+      # Step 4: Install dependencies for building the Python package
       - name: Install Build Tools
         run: |
           python -m pip install --upgrade pip setuptools wheel twine
 
-      # Step 4: Build the Python package
+      # Step 5: Build the Python package
       - name: Build Python Package
         run: |
           python setup.py sdist bdist_wheel
 
-      # Step 5: Upload the package to the self-hosted PyPI server
+      # Step 6: Upload the package to the self-hosted PyPI server
       - name: Upload to Self-Hosted PyPI
         env:
-          TWINE_USERNAME: ${{ env.PYPI_USERNAME }}
-          TWINE_PASSWORD: ${{ env.PYPI_PASSWORD }}
+          TWINE_USERNAME: $PYPI_USERNAME
+          TWINE_PASSWORD: $PYPI_PASSWORD
         run: |
-          twine upload --repository-url ${{ env.PYPI_URL }} dist/*
+          twine upload --repository-url $PYPI_URL dist/*
 
-      # Step 6: Log in to Docker Hub
+      # Step 7: Log in to Docker Hub
       - name: Log in to Docker Hub
         run: |
-          docker login -u $DOCKER_USERNAME --password-stdin <<< "$DOCKER_PASSWORD"
+          echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 
-      # Step 7: Build the Docker image
+      # Step 8: Build the Docker image
       - name: Build Docker Image
         run: |
           docker build -t $DOCKER_IMAGE_NAME:latest .
 
-      # Step 8: Push the Docker image to Docker Hub
+      # Step 9: Push the Docker image to Docker Hub
       - name: Push Docker Image
         run: |
           docker push $DOCKER_IMAGE_NAME:latest
 
-      # Step 9: Stop the currently running common_infra container
+      # Step 10: Stop the currently running common_infra container
       - name: Stop the currently running common_infra container
         run: |
           if [ "$(docker ps -q -f name=common_infra_abstraction_layer)" ]; then
@@ -71,7 +69,7 @@ jobs:
           fi
           docker rm common_infra_abstraction_layer || true
 
-      # Step 10: Start a new common_infra container with the latest image
+      # Step 11: Start a new common_infra container with the latest image
       - name: Start a new common_infra container with the latest image
         run: |
           docker run -d \
