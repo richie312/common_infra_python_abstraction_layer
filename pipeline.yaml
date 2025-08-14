@@ -61,3 +61,20 @@ jobs:
       - name: Push Docker Image
         run: |
           docker push $DOCKER_IMAGE_NAME:latest
+
+      # Step 9: Stop the currently running common_infra container
+      - name: Stop the currently running common_infra container
+        run: |
+          if [ "$(docker ps -q -f name=common_infra_abstraction_layer)" ]; then
+            docker stop common_infra_abstraction_layer;
+          fi
+          docker rm common_infra_abstraction_layer || true
+
+      # Step 10: Start a new common_infra container with the latest image
+      - name: Start a new common_infra container with the latest image
+        run: |
+          docker run -d \
+            --name common_infra_abstraction_layer \
+            --network my_rasp_network \
+            -p 5003:5003 \
+            $DOCKER_IMAGE_NAME:latest

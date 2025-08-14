@@ -1,10 +1,10 @@
 curl -X POST -H "Content-Type: application/json" -d '{"topic": "test-topic", "key": "my-key", "value": "Hello, Kafka!"}' http://127.0.0.1:5003/produce
 
-# run kafka broker with docker
-docker run -d -p 9092:9092 --name broker apache/kafka:latest
+# Run Kafka broker with Docker
+docker run -d -p 9092:9092 --name broker --network my_rasp_network apache/kafka:latest
 
-#run application
-docker run -d -p 5003:5003 --name common_infra_abstraction_layer --restart unless-stopped richie31/common_infra
+# Run application
+docker run -d -p 5003:5003 --name common_infra_abstraction_layer --restart unless-stopped --network my_rasp_network richie31/common_infra
 
-# run redis server 
-docker run --name redis-server -d -p 6379:6379 redis
+# Run Redis server with persistent volume
+docker run --name redis-server -d -p 6379:6379 --network my_rasp_network -v /home/pi/my_rasp_network_shared_vol/:/data redis
