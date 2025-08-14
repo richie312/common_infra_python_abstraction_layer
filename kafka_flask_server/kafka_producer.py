@@ -75,9 +75,12 @@ def consume_messages(topic):
 
     try:
         print(f"Consuming messages from topic: {topic}")
-        while True:
+        retries = 0  # Initialize retry counter
+        max_retries = 3  # Set maximum retries
+        while retries < max_retries:
             msg = consumer.poll(1.0)  # Poll for messages (timeout in seconds)
             if msg is None:
+                retries += 1
                 continue
             if msg.error():
                 if msg.error().code() == KafkaError._PARTITION_EOF:
@@ -87,8 +90,8 @@ def consume_messages(topic):
                     raise KafkaException(msg.error())
             else:
                 # Successfully received a message
-                print(f"Received message: {msg.value().decode('utf-8')} from topic: {msg.topic()} partition: {msg.partition()} offset: {msg.offset()}")
-                message = f"Received message: {msg.value().decode('utf-8')} from topic: {msg.topic()} partition: {msg.partition()} offset: {msg.offset()}"
+                
+                message = msg.value().decode('utf-8')
                 return message
     except KeyboardInterrupt:
         print("Consumer interrupted by user")

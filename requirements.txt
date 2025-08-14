@@ -1,1 +1,3 @@
 confluent-kafka
+flask
+redis
