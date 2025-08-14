@@ -1,3 +1,7 @@
 confluent-kafka
 flask
+<<<<<<< HEAD
 redis
+=======
+redis
+>>>>>>> 8642707c9742b4a5e816b0e81e8cd3236ab253e9
