@@ -15,14 +15,6 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-
-      # Step 2: Load environment variables from .env file
-      - name: Load .env file
-        run: |
-          set -o allexport
-          source /home/pi/projects/abstract/.env
-          set +o allexport
-
       # Step 3: Set up Python environment
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -50,7 +42,7 @@ jobs:
       # Step 7: Log in to Docker Hub
       - name: Log in to Docker Hub
         run: |
-          echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+          docker login -u $DOCKER_USERNAME --password-stdin <<< $DOCKER_PASSWORD
 
       # Step 8: Build the Docker image
       - name: Build Docker Image
