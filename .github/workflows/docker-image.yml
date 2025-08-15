@@ -18,13 +18,8 @@ jobs:
       # Step 3: Install dependencies for building the Python package
       - name: Install Build Tools
         run: |
-          python3 -m pip install --upgrade --user pip setuptools wheel twine --prefix /home/github-runner/custom-python-packages
-
-      # add the directory to PATH
-      - name: Add Custom Python Path
-        run: |
-          export PATH=/home/github-runner/custom-python-packages/bin:$PATH
-          
+          python3 -m pip install --upgrade --user pip setuptools wheel twine
+    
       # Step 4: Build the Python package
       - name: Build Python Package
         run: |
@@ -54,19 +49,8 @@ jobs:
         run: |
           docker push $DOCKER_IMAGE_NAME:latest
 
-      # Step 10: Stop the currently running common_infra container
-      - name: Stop the currently running common_infra container
+      # Step 10: Remove Docker images
+      - name: Remove Docker Images
         run: |
-          if [ "$(docker ps -q -f name=common_infra_abstraction_layer)" ]; then
-            docker stop common_infra_abstraction_layer;
-          fi
-          docker rm common_infra_abstraction_layer || true
-
-      # Step 11: Start a new common_infra container with the latest image
-      - name: Start a new common_infra container with the latest image
-        run: |
-          docker run -d \
-            --name common_infra_abstraction_layer \
-            --network my_rasp_network \
-            -p 5003:5003 \
-            $DOCKER_IMAGE_NAME:latest
+          docker rmi $DOCKER_IMAGE_NAME:latest || true
+          docker image prune -f
