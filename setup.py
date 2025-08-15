@@ -1,8 +1,33 @@
-from setuptools import setup, find_packages
+# from setuptools import setup, find_packages
+
+def update_octets(version_string):
+    # Split the IP address into octets
+    octets = list(map(int, version_string.split('.')))
+
+    # Check if the third octet reaches 10
+    octets[2] += 1  # Reset the third octet
+
+    if octets[2] >= 10:
+        octets[1] += 1  # Reset the third octet
+        octets[2] = 10
+
+    if octets[1] >= 10:  # Increment the second octet
+        octets[0] +=1
+        octets[1] = 10
+
+        # Ensure the second octet does not exceed 255
+        if octets[0] >= 1:
+            octets[1] = 0
+            octets[2] = 0
+
+    # Reconstruct the IP address
+    updated_ip = '.'.join(map(str, octets))
+    return updated_ip
+
 
 setup(
     name="common_infra_python_library",  # Replace with your package name
-    version="1.0.0",  # Replace with your package version
+    version=update_octets("1.0.0"),  # Replace with your package version
     author="Richie312",  # Replace with your name
     author_email="richie.chatterjee31@gmail.com",  # Replace with your email
     description="Python Library for Common Infrastructure Components like Redis, Kafka, sql, etc",  # Short description
