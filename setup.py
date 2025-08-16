@@ -20,9 +20,9 @@ def update_octets(version_string):
             octets[1] = 0
             octets[2] = 0
 
-    # Reconstruct the IP address
-    updated_ip = '.'.join(map(str, octets))
-    return updated_ip
+    # Reconstruct the updated version
+    updated_version = '.'.join(map(str, octets))
+    return updated_version
 
 
 setup(
