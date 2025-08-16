@@ -27,7 +27,7 @@ def update_octets(version_string):
 
 setup(
     name="common_infra_python_library",  # Replace with your package name
-    version=update_octets("1.0.0"),  # Replace with your package version
+    version=update_octets("1.0.1"),  # Replace with your package version
     author="Richie312",  # Replace with your name
     author_email="richie.chatterjee31@gmail.com",  # Replace with your email
     description="Python Library for Common Infrastructure Components like Redis, Kafka, sql, etc",  # Short description
