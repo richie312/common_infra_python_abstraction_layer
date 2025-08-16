@@ -42,7 +42,7 @@ jobs:
       # Step 8: Build the Docker image
       - name: Build Docker Image
         run: |
-          docker build -v /var/run/docker.sock:/var/run/docker.sock -t $DOCKER_IMAGE_NAME:latest .
+          docker build -t $DOCKER_IMAGE_NAME:latest .
 
       # Step 9: Push the Docker image to Docker Hub
       - name: Push Docker Image
