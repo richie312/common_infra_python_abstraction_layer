@@ -10,6 +10,9 @@ jobs:
     if: github.event.pull_request.merged == true  # Only run if the PR was merged
     runs-on: self-hosted  # Use your self-hosted runner or GitHub-hosted runner
 
+    env:
+      DOCKER_IMAGE_NAME: common-infra-python-library  # Define the generic variable
+
     steps:
       # Step 1: Checkout the code
       - name: Checkout Code
