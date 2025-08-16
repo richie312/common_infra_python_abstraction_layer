@@ -11,7 +11,7 @@ jobs:
     runs-on: self-hosted  # Use your self-hosted runner or GitHub-hosted runner
 
     env:
-      DOCKER_IMAGE_NAME: common-infra-python-library  # Define the generic variable
+      DOCKER_IMAGE_NAME: $DOCKER_USERNAME/common-infra-python-library  # Define the generic variable
 
     steps:
       # Step 1: Checkout the code
@@ -42,15 +42,10 @@ jobs:
       # Step 8: Build the Docker image
       - name: Build Docker Image
         run: |
-          docker build -t $DOCKER_IMAGE_NAME:latest .
+          docker build -v /var/run/docker.sock:/var/run/docker.sock -t $DOCKER_IMAGE_NAME:latest .
 
       # Step 9: Push the Docker image to Docker Hub
       - name: Push Docker Image
         run: |
           docker push $DOCKER_IMAGE_NAME:latest
 
-      # Step 10: Remove Docker images
-      - name: Remove Docker Images
-        run: |
-          docker rmi $DOCKER_IMAGE_NAME:latest || true
-          docker image prune -f
