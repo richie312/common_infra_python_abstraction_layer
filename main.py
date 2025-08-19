@@ -8,7 +8,7 @@ from confluent_kafka import Consumer, KafkaException, KafkaError
 app = Flask(__name__)
 
 # Instantiate Redis client
-redis_client = redis.StrictRedis(host='localhost', port=6379, db=0, decode_responses=True)
+redis_client = redis.StrictRedis(host='redis-server', port=6379, db=0, decode_responses=True)
 
 
 def produce(topic,key,msg):
@@ -49,4 +49,4 @@ def consume():
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(host = '0.0.0.0',debug=True,port=5003)
+    app.run(host = '0.0.0.0',debug=True,port=5000)
