@@ -10,7 +10,7 @@ sys.path.append(file_dir)
 
 def create_producer():
     conf = {
-        'bootstrap.servers': 'localhost:9092',  # Replace with your Kafka broker(s)
+        'bootstrap.servers': 'common_infra:9092',  # Replace with your Kafka broker(s)
         'client.id': 'flask-producer',
         'security.protocol': 'PLAINTEXT'
     }
@@ -37,7 +37,7 @@ def create_topic(topic_name, num_partitions=3, replication_factor=1):
     :param num_partitions: Number of partitions for the topic
     :param replication_factor: Replication factor for the topic
     """
-    admin_client = AdminClient({'bootstrap.servers': 'localhost:9092'})
+    admin_client = AdminClient({'bootstrap.servers': 'common_infra:9092'})
 
     # Define the topic configuration
     topic = NewTopic(topic_name, num_partitions=num_partitions, replication_factor=replication_factor)
