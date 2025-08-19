@@ -4,7 +4,7 @@ This library will be used for multiple applications to interact with common infr
 
 ## dokcer run command
 
-docker run -d -p 5003:5003 --name common_infra_abstraction_layer --network my_rasp_network --restart unless-stopped richie31/common_infra
+docker run -d -p 5003:5003 --name common_infra --network my_rasp_network -e KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://192.168.1.4:9092 --restart unless-stopped richie31/common-infra-python-library:latest
 
 ## library build
 
