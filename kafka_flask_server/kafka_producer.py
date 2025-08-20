@@ -10,7 +10,7 @@ sys.path.append(file_dir)
 
 def create_producer():
     conf = {
-        'bootstrap.servers': 'broker:9092',  # Replace with your Kafka broker(s)
+        'bootstrap.servers': '192.168.1.4:9092',  # Replace with your Kafka 192.168.1.4(s)
         'client.id': 'flask-producer',
         'security.protocol': 'PLAINTEXT'
     }
@@ -32,12 +32,12 @@ def create_topic(topic_name, num_partitions=3, replication_factor=1):
     """
     Creates a Kafka topic using the confluent-kafka AdminClient.
 
-    :param broker: Kafka broker address (e.g., 'broker:9092')
+    :param 192.168.1.4: Kafka 192.168.1.4 address (e.g., '192.168.1.4:9092')
     :param topic_name: Name of the topic to create
     :param num_partitions: Number of partitions for the topic
     :param replication_factor: Replication factor for the topic
     """
-    admin_client = AdminClient({'bootstrap.servers': 'broker:9092'})
+    admin_client = AdminClient({'bootstrap.servers': '192.168.1.4:9092'})
 
     # Define the topic configuration
     topic = NewTopic(topic_name, num_partitions=num_partitions, replication_factor=replication_factor)
@@ -59,7 +59,7 @@ def create_topic(topic_name, num_partitions=3, replication_factor=1):
 def create_consumer():
     # Configuration for the Kafka consumer
     conf = {
-        'bootstrap.servers': 'broker:9092',  # Replace with your Kafka broker(s)
+        'bootstrap.servers': '192.168.1.4:9092',  # Replace with your Kafka 192.168.1.4(s)
         'group.id': 'my-consumer-group',        # Consumer group ID
         'auto.offset.reset': 'earliest',        # Start reading at the earliest message
     }
