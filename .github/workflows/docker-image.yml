@@ -3,46 +3,54 @@ name: On PR Merge - Build and Deploy
 on:
   pull_request:
     types:
-      - closed  # Trigger when a PR is closed
+      - closed
 
 jobs:
   build-and-deploy:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
 
     env:
-      DOCKER_USERNAME: richie31  # Replace with your Docker Hub username
-      DOCKER_IMAGE: common-infra-python-library:latest  # Define the image name
+      DOCKER_USERNAME: richie31
+      DOCKER_IMAGE: common-infra-python-library:latest
 
     steps:
+      # Step 0: Cache Docker Compose V2 installation
+      - name: Cache Docker Compose V2
+        id: cache-docker-compose # Give this step an ID to reference its output
+        uses: actions/cache@v4 # Use actions/cache@v4 or @v3
+        with:
+          path: ~/.docker/cli-plugins/docker-compose # Path where docker-compose is installed
+          key: ${{ runner.os }}-docker-compose-v2-24.5 # Unique key based on OS and Compose version
+
+      # Step 0.1: Install Docker Compose V2 if cache miss
+      - name: Install Docker Compose V2 (if cache miss)
+        if: steps.cache-docker-compose.outputs.cache-hit != 'true' # Only run if cache was not found
+        run: |
+          DOCKER_CONFIG=${DOCKER_CONFIG:-$HOME/.docker}
+          mkdir -p $DOCKER_CONFIG/cli-plugins
+          curl -SL https://github.com/docker/compose/releases/download/v2.24.5/docker-compose-linux-x86_64 -o $DOCKER_CONFIG/cli-plugins/docker-compose
+          chmod +x $DOCKER_CONFIG/cli-plugins/docker-compose
+        # You can adjust the version (v2.24.5) and architecture (x86_64) as needed.
+        # Check https://github.com/docker/compose/releases for the latest stable version.
+        # This step will save the downloaded binary to the cache path defined above.
+
+      # Step 0.2: Verify Docker Compose V2 (always run to ensure it's available)
+      - name: Verify Docker Compose V2
+        run: |
+          docker compose version
+
+
       # Step 1: Checkout the code
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      # Step 2: Install dependencies for building the Python package
-      - name: Install Build Tools
-        run: |
-          python3 -m pip install --upgrade --user pip setuptools wheel twine
-    
-      # Step 3: Build the Python package
-      - name: Build Python Package
-        run: |
-          python3 setup.py sdist bdist_wheel
-
-      # Step 4: Upload the package to the self-hosted PyPI server
-      - name: Upload to Self-Hosted PyPI
-        run: |
-          twine upload --repository-url $PYPI_URL -u $PYPI_USERNAME -p $PYPI_PASSWORD dist/*
-
-      # Step 5: Log in to Docker Hub
-      - name: Log in to Docker Hub
-        run: |
-          docker login -u $DOCKER_USERNAME --password-stdin <<< $DOCKER_PASSWORD
+      # ... (rest of your existing steps 2-10) ...
 
       # Step 6: Build the Docker image for common_infra
       - name: Build Docker Image for common_infra
         run: |
           docker compose build common_infra # Correct command to build the specific service's image
-        working-directory: . # IMPORTANT: Adjust this if docker-compose.yml is not in the root
+        working-directory: .
 
       # Step 7: Push the Docker image to Docker Hub
       - name: Push Docker Image
@@ -57,7 +65,7 @@ jobs:
           else
             echo "Service 'common_infra' is not running."
           fi
-        working-directory: . # IMPORTANT: Adjust this if docker-compose.yml is not in the root
+        working-directory: .
 
       # Step 9: Remove Old Docker Image
       - name: Remove Old Docker Image
@@ -66,8 +74,7 @@ jobs:
           docker image prune -f
 
       # Step 10: Start New Container for 'common_infra' service
-      - name: Start 'common_infra' service
+      - name: Start New Container
         run: |
-          # Use docker compose up with --build flag here to ensure it uses the latest build
           docker compose up -d --build common_infra
         working-directory: .
