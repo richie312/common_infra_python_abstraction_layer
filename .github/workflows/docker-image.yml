@@ -14,52 +14,27 @@ jobs:
       DOCKER_IMAGE: common-infra-python-library:latest
 
     steps:
-      # Step 1: Cache Docker Compose V2 installation
-      - name: Cache Docker Compose V2
-        id: cache-docker-compose # Give this step an ID to reference its output
-        uses: actions/cache@v4 # Use actions/cache@v4 or @v3
-        with:
-          path: ~/.docker/cli-plugins/docker-compose # Path where docker-compose is installed
-          key: ${{ runner.os }}-docker-compose-v2-24.5 # Unique key based on OS and Compose version
-
-      # Step 2: Install Docker Compose V2 if cache miss
-      - name: Install Docker Compose V2 (if cache miss)
-        if: steps.cache-docker-compose.outputs.cache-hit != 'true' # Only run if cache was not found
-        run: |
-          DOCKER_CONFIG=${DOCKER_CONFIG:-$HOME/.docker}
-          mkdir -p $DOCKER_CONFIG/cli-plugins
-          curl -SL https://github.com/docker/compose/releases/download/v2.24.5/docker-compose-linux-x86_64 -o $DOCKER_CONFIG/cli-plugins/docker-compose
-          chmod +x $DOCKER_CONFIG/cli-plugins/docker-compose
-        # You can adjust the version (v2.24.5) and architecture (x86_64) as needed.
-        # Check https://github.com/docker/compose/releases for the latest stable version.
-        # This step will save the downloaded binary to the cache path defined above.
-
-      # Step 03: Verify Docker Compose V2 (always run to ensure it's available)
-      - name: Verify Docker Compose V2
-        run: |
-          docker compose version
-
-      # Step 4: Checkout the code
+      # Step 1: Checkout the code
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      # Step 5: Build the Python package
+      # Step 2: Build the Python package
       - name: Build Python Package
         run: |
           python3 -m pip install --upgrade --user pip setuptools wheel twine
           python3 setup.py sdist bdist_wheel
 
-      # Step 6: Upload the package to the self-hosted PyPI server
+      # Step 3: Upload the package to the self-hosted PyPI server
       - name: Upload to Self-Hosted PyPI
         run: |
           twine upload --repository-url $PYPI_URL -u $PYPI_USERNAME -p $PYPI_PASSWORD dist/*
 
-      # Step 7: Log in to Docker Hub
+      # Step 4: Log in to Docker Hub
       - name: Log in to Docker Hub
         run: |
           docker login -u $DOCKER_USERNAME --password-stdin <<< $DOCKER_PASSWORD
 
-      # Step 8: Bring down 'common_infra' service (stops and removes container)
+      # Step 5: Bring down 'common_infra' service (stops and removes container)
       - name: Bring down 'common_infra' service
         run: |
           if docker compose ps -q common_infra &>/dev/null; then
@@ -69,24 +44,24 @@ jobs:
           fi
         working-directory: .
 
-      # Step 9: Remove Old Docker Image
+      # Step 6: Remove Old Docker Image
       - name: Remove Old Docker Image
         run: |
           docker rmi ${DOCKER_USERNAME}/${DOCKER_IMAGE} || true
           docker image prune -f
 
-      # Step 10: Build the Docker image for common_infra
+      # Step 7: Build the Docker image for common_infra
       - name: Build Docker Image for common_infra
         run: |
           docker compose build common_infra
         working-directory: .
 
-      # Step 11: Push the Docker image to Docker Hub
+      # Step 8: Push the Docker image to Docker Hub
       - name: Push Docker Image
         run: |
           docker push ${DOCKER_USERNAME}/${DOCKER_IMAGE}
 
-      # Step 12: Start New Container for 'common_infra' service
+      # Step 9: Start New Container for 'common_infra' service
       - name: Start New Container
         run: |
           docker compose up -d --build common_infra
