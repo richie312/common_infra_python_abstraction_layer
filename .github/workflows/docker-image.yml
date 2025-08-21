@@ -46,6 +46,7 @@ jobs:
       # Step 5: Build the Python package
       - name: Build Python Package
         run: |
+          python3 -m pip install --upgrade --user pip setuptools wheel twine
           python3 setup.py sdist bdist_wheel
 
       # Step 6: Upload the package to the self-hosted PyPI server
