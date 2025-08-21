@@ -38,23 +38,26 @@ jobs:
         run: |
           docker login -u $DOCKER_USERNAME --password-stdin <<< $DOCKER_PASSWORD
 
-      # Step 6: Build the Docker image
-      - name: Build Docker Image
+      # Step 6: Build the Docker image for common_infra
+      - name: Build Docker Image for common_infra
         run: |
-          docker build -t ${DOCKER_USERNAME}/${DOCKER_IMAGE} .
+          docker compose build common_infra # Correct command to build the specific service's image
+        working-directory: . # IMPORTANT: Adjust this if docker-compose.yml is not in the root
 
       # Step 7: Push the Docker image to Docker Hub
       - name: Push Docker Image
         run: |
           docker push ${DOCKER_USERNAME}/${DOCKER_IMAGE}
 
-      # Step 8: Stop and Remove Existing Container
-      - name: Stop and Remove Existing Container
+      # Step 8: Bring down 'common_infra' service (stops and removes container)
+      - name: Bring down 'common_infra' service
         run: |
-          if [ "$(docker ps -q -f name=common_infra)" ]; then
-            docker stop common_infra
-            docker rm common_infra
+          if docker compose ps -q common_infra &>/dev/null; then
+            docker compose down common_infra
+          else
+            echo "Service 'common_infra' is not running."
           fi
+        working-directory: . # IMPORTANT: Adjust this if docker-compose.yml is not in the root
 
       # Step 9: Remove Old Docker Image
       - name: Remove Old Docker Image
@@ -62,11 +65,9 @@ jobs:
           docker rmi ${DOCKER_USERNAME}/${DOCKER_IMAGE} || true
           docker image prune -f
 
-      # Step 10: Start New Container
-      - name: Start New Container
+      # Step 10: Start New Container for 'common_infra' service
+      - name: Start 'common_infra' service
         run: |
-          docker run -d -p 5003:5003 \
-            --name common_infra \
-            --network my_rasp_network \
-            --restart unless-stopped \
-            ${DOCKER_USERNAME}/${DOCKER_IMAGE}
+          # Use docker compose up with --build flag here to ensure it uses the latest build
+          docker compose up -d --build common_infra
+        working-directory: .
