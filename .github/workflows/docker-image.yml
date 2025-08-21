@@ -14,7 +14,7 @@ jobs:
       DOCKER_IMAGE: common-infra-python-library:latest
 
     steps:
-      # Step 0: Cache Docker Compose V2 installation
+      # Step 1: Cache Docker Compose V2 installation
       - name: Cache Docker Compose V2
         id: cache-docker-compose # Give this step an ID to reference its output
         uses: actions/cache@v4 # Use actions/cache@v4 or @v3
@@ -22,7 +22,7 @@ jobs:
           path: ~/.docker/cli-plugins/docker-compose # Path where docker-compose is installed
           key: ${{ runner.os }}-docker-compose-v2-24.5 # Unique key based on OS and Compose version
 
-      # Step 0.1: Install Docker Compose V2 if cache miss
+      # Step 2: Install Docker Compose V2 if cache miss
       - name: Install Docker Compose V2 (if cache miss)
         if: steps.cache-docker-compose.outputs.cache-hit != 'true' # Only run if cache was not found
         run: |
@@ -34,30 +34,17 @@ jobs:
         # Check https://github.com/docker/compose/releases for the latest stable version.
         # This step will save the downloaded binary to the cache path defined above.
 
-      # Step 0.2: Verify Docker Compose V2 (always run to ensure it's available)
+      # Step 03: Verify Docker Compose V2 (always run to ensure it's available)
       - name: Verify Docker Compose V2
         run: |
           docker compose version
 
 
-      # Step 1: Checkout the code
+      # Step 4: Checkout the code
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      # ... (rest of your existing steps 2-10) ...
-
-      # Step 6: Build the Docker image for common_infra
-      - name: Build Docker Image for common_infra
-        run: |
-          docker compose build common_infra # Correct command to build the specific service's image
-        working-directory: .
-
-      # Step 7: Push the Docker image to Docker Hub
-      - name: Push Docker Image
-        run: |
-          docker push ${DOCKER_USERNAME}/${DOCKER_IMAGE}
-
-      # Step 8: Bring down 'common_infra' service (stops and removes container)
+      # Step 5: Bring down 'common_infra' service (stops and removes container)
       - name: Bring down 'common_infra' service
         run: |
           if docker compose ps -q common_infra &>/dev/null; then
@@ -67,13 +54,24 @@ jobs:
           fi
         working-directory: .
 
-      # Step 9: Remove Old Docker Image
+      # Step 6: Remove Old Docker Image
       - name: Remove Old Docker Image
         run: |
           docker rmi ${DOCKER_USERNAME}/${DOCKER_IMAGE} || true
           docker image prune -f
 
-      # Step 10: Start New Container for 'common_infra' service
+      # Step 7: Build the Docker image for common_infra
+      - name: Build Docker Image for common_infra
+        run: |
+          docker compose build common_infra # Correct command to build the specific service's image
+        working-directory: .
+
+      # Step 8: Push the Docker image to Docker Hub
+      - name: Push Docker Image
+        run: |
+          docker push ${DOCKER_USERNAME}/${DOCKER_IMAGE}
+
+      # Step 9: Start New Container for 'common_infra' service
       - name: Start New Container
         run: |
           docker compose up -d --build common_infra
