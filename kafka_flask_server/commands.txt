@@ -1,4 +1,20 @@
-curl -X POST -H "Content-Type: application/json" -d '{"topic": "test-topic", "key": "my-key", "value": "Hello, Kafka!"}' http://127.0.0.1:5003/produce
+curl -X POST http://127.0.0.1:5003/produce ^
+  -H "Content-Type: application/json" ^
+  -d "{\"topic\":\"test-topic\",\"key\":\"my-key\",\"value\":\"Hello, Kafka!\"}"
+
+# Multi arch build command
+
+docker buildx build --platform linux/amd64,linux/arm64 --no-cache -t richie31/common-infra-python-library:latest --push .
+
+# Test Dump Api
+curl -X POST http://localhost:5003/ops/mysql/dump
+
+
+#Import the sql file after running db and other infra
+docker exec -i mysql mysql -uroot -p"password" < "C:\Users\Richie\Desktop\Documents\docker_vol_backup\2025-08-31\all_databases_backup.sql"
+
+#validation import worked
+docker exec -it mysql mysql -uroot -p"password" -e "SHOW DATABASES;"
 
 # Run Kafka broker with Docker
 docker run -d -p 9092:9092 --name broker --network my_rasp_network apache/kafka:latest

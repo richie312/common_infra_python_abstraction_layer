@@ -1,4 +1,7 @@
+import os
+import subprocess
 import json
+import datetime
 import redis
 from flask import Flask, request, jsonify
 from kafka_flask_server.kafka_producer import produce_message, consume_messages, create_topic
@@ -11,6 +14,57 @@ app = Flask(__name__)
 redis_client = redis.StrictRedis(host='redis-server', port=6379, db=0, decode_responses=True)
 
 
+
+# -------------------------
+# Config
+# -------------------------
+MYSQL_HOST = os.getenv("MYSQL_HOST", "mysql")
+MYSQL_USER = os.getenv("MYSQL_USER", "root")
+MYSQL_PASSWORD = os.getenv("MYSQL_ROOT_PASSWORD")
+
+BACKUP_DIR = os.getenv("MYSQL_BACKUP_DIR", "/dumps")
+
+os.makedirs(BACKUP_DIR, exist_ok=True)
+
+# -------------------------
+# OPS: MySQL Dump
+# -------------------------
+@app.route("/ops/mysql/dump", methods=["POST"])
+def mysql_dump():
+
+    if not MYSQL_PASSWORD:
+        return jsonify({"error": "MYSQL_ROOT_PASSWORD not set"}), 500
+
+    ts = datetime.datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+    filename = f"mysql_dump_{ts}.sql"
+    filepath = os.path.join(BACKUP_DIR, filename)
+
+    cmd = [
+        "mysqldump",
+        "-h", MYSQL_HOST,
+        "-u", MYSQL_USER,
+        f"-p{MYSQL_PASSWORD}",
+        "--single-transaction",
+        "--routines",
+        "--events",
+        "--all-databases"
+    ]
+
+    try:
+        with open(filepath, "w") as f:
+            subprocess.run(cmd, stdout=f, stderr=subprocess.PIPE, check=True)
+
+        return jsonify({
+            "status": "dump_created",
+            "file": filepath
+        }), 200
+
+    except subprocess.CalledProcessError as e:
+        return jsonify({
+            "status": "dump_failed",
+            "error": e.stderr.decode()
+        }), 500
+    
 def produce(topic,key,msg):
     if not topic or not msg:
         return jsonify({'error': 'Topic and value are required'}), 400
