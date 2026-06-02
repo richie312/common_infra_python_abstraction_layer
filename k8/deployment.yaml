@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: common-infra-app
+  namespace: common-infra
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: common-infra-app
+
+  template:
+    metadata:
+      labels:
+        app: common-infra-app
+
+    spec:
+      containers:
+        - name: common-infra-app
+
+          image: richie31/common-infra-python-library:latest
+
+          imagePullPolicy: Always
+
+          ports:
+            - containerPort: 5003
+
+          env:
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              valueFrom:
+                configMapKeyRef:
+                  name: common-infra-config
+                  key: KAFKA_BOOTSTRAP_SERVERS
