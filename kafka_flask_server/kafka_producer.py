@@ -10,7 +10,7 @@ sys.path.append(file_dir)
 
 def create_producer():
     conf = {
-        'bootstrap.servers': os.environ['KAFKA_BOOTSTRAP_SERVERS'],  # Replace with your Kafka 192.168.1.4(s)
+        'bootstrap.servers': os.getenv('KAFKA_BOOTSTRAP_SERVERS'),  # Replace with your Kafka 192.168.1.4(s)
         'client.id': 'flask-producer',
         'security.protocol': 'PLAINTEXT'
     }
