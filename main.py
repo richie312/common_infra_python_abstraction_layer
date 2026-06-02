@@ -11,7 +11,12 @@ from confluent_kafka import Consumer, KafkaException, KafkaError
 app = Flask(__name__)
 
 # Instantiate Redis client
-redis_client = redis.StrictRedis(host='redis-server', port=6379, db=0, decode_responses=True)
+redis_client = redis.StrictRedis(
+    host=os.getenv("REDIS_HOST", "localhost"),
+    port=int(os.getenv("REDIS_PORT", 6379)),
+    db=0,
+    decode_responses=True
+)
 
 
 
