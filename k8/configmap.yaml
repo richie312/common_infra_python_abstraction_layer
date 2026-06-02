@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: common-infra-config
+  namespace: common-infra
+
+data:
+  KAFKA_BOOTSTRAP_SERVERS: "192.168.1.50:9092"
