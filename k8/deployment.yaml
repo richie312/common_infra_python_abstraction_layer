@@ -21,7 +21,7 @@ spec:
       containers:
         - name: common-infra-app
 
-          image: richie31/common-infra-python-library:latest
+          image: richie31/common-infra-python-library:20260602
 
           imagePullPolicy: Always
 
