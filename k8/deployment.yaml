@@ -29,8 +29,49 @@ spec:
             - containerPort: 5003
 
           env:
+
+            # Kafka
             - name: KAFKA_BOOTSTRAP_SERVERS
               valueFrom:
                 configMapKeyRef:
                   name: common-infra-config
                   key: KAFKA_BOOTSTRAP_SERVERS
+
+            # Redis
+            - name: REDIS_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: common-infra-config
+                  key: REDIS_HOST
+
+            - name: REDIS_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: common-infra-config
+                  key: REDIS_PORT
+
+            # MySQL ConfigMap values
+            - name: MYSQL_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: common-infra-config
+                  key: MYSQL_HOST
+
+            - name: MYSQL_BACKUP_DIR
+              valueFrom:
+                configMapKeyRef:
+                  name: common-infra-config
+                  key: MYSQL_BACKUP_DIR
+
+            # MySQL Secret values
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: common-infra-secret
+                  key: MYSQL_USER
+
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: common-infra-secret
+                  key: MYSQL_PASSWORD

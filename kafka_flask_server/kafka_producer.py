@@ -37,7 +37,7 @@ def create_topic(topic_name, num_partitions=3, replication_factor=1):
     :param num_partitions: Number of partitions for the topic
     :param replication_factor: Replication factor for the topic
     """
-    admin_client = AdminClient({'bootstrap.servers': os.environ['KAFKA_BOOTSTRAP_SERVERS']})
+    admin_client = AdminClient({'bootstrap.servers': os.getenv("KAFKA_BOOTSTRAP_SERVERS")})
 
     # Define the topic configuration
     topic = NewTopic(topic_name, num_partitions=num_partitions, replication_factor=replication_factor)
@@ -59,7 +59,7 @@ def create_topic(topic_name, num_partitions=3, replication_factor=1):
 def create_consumer():
     # Configuration for the Kafka consumer
     conf = {
-        'bootstrap.servers': os.environ['KAFKA_BOOTSTRAP_SERVERS'],  # Replace with your Kafka 192.168.1.4(s)
+        'bootstrap.servers': os.getenv("KAFKA_BOOTSTRAP_SERVERS"),  # Replace with your Kafka 192.168.1.4(s)
         'group.id': 'my-consumer-group',        # Consumer group ID
         'auto.offset.reset': 'earliest',        # Start reading at the earliest message
     }
