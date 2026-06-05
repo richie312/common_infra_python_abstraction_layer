@@ -164,3 +164,4 @@ cython_debug/
 .vscode/*
 *bat
 secret.yaml
+sample.sql

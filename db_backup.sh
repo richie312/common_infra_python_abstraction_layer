@@ -1,38 +1,37 @@
 #!/bin/bash
-set -e
-
+set -eo pipefail  # Better error catching for piped commands
 echo "[DB BACKUP] Starting..."
 
-ENV_DIR="/home/richie/env"
-BACKUP_DIR="/home/richie/db_backups"
-CONTAINER_NAME="common-infra"
+ENV_DIR="/home/richie/env/common_infra"
+BACKUP_DIR="/home/richie/pi-backups"
+CONTAINER_NAME="mysql"
 
 # rclone remote
 RCLONE_REMOTE="master_rasp_node:pi-backups"
 
-mkdir -p "$BACKUP_DIR"
-
 # Load env files
-for f in "$ENV_DIR"/*.env; do
-  [ -f "$f" ] && source "$f"
-done
+set -a
+source /home/richie/env/common_infra/.env
+set +a
 
 TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
 BACKUP_FILE="$BACKUP_DIR/mysql_${TIMESTAMP}.sql"
 
-echo "[DB BACKUP] Dumping MySQL → $BACKUP_FILE"
 
-docker exec "$CONTAINER_NAME" \
-  mysqldump -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE" \
-  > "$BACKUP_FILE"
+# ... [Your existing variables] ...
 
-echo "[DB BACKUP] Backup created successfully"
+# FIX 1: Use a safer way to pass the password
+# This uses the container's internal environment variable directly
+DOCKER_CMD="mysqldump -u root -p\"\$MYSQL_ROOT_PASSWORD\" mysql"
+echo "[DB BACKUP] Executing dump..."
+# FIX 2: pipefail ensures if mysqldump fails, the script stops
+docker exec $CONTAINER_NAME sh -c "$DOCKER_CMD" > "$BACKUP_FILE"
 
-# ---- Sync to Google Drive ----
-echo "[DB BACKUP] Syncing to Google Drive..."
+# FIX 3: Use 'copy' instead of 'sync' to prevent accidental remote deletions
+echo "[DB BACKUP] Copying to Google Drive..."
+rclone copy "$BACKUP_DIR" "$RCLONE_REMOTE" --progress
 
-rclone sync "$BACKUP_DIR" "$RCLONE_REMOTE"
+# Optional: Add local cleanup so your disk doesn't fill up
+# find "$BACKUP_DIR" -type f -mtime +7 -delete
 
-echo "[DB BACKUP] Google Drive sync complete"
-
-exit 0
+echo "[DB BACKUP] Complete"
