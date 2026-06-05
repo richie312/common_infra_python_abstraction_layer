@@ -43,47 +43,46 @@ services:
     networks:
       - my_rasp_network
 
-  # common_infra:
-  #   image: richie31/common-infra-python-library
-  #   container_name: common_infra
-  #   env_file:
-  #     - /home/richie/private-secrets/common_infra/.env
-  #   ports:
-  #     - "5003:5003"
-  #   environment:
-  #     KAFKA_BOOTSTRAP_SERVERS: broker:9092
-  #   volumes:
-  #     - mysql_ubuntu_rasp_device:/dumps
-  #   networks:
-  #     - my_rasp_network
-  #   restart: unless-stopped
+  common_infra:
+    image: richie31/common-infra-python-library
+    container_name: common_infra
+    env_file:
+      - /home/richie/private-secrets/common_infra/.env
+    ports:
+      - "5003:5003"
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: broker:9092
+    volumes:
+      - mysql_ubuntu_rasp_device:/dumps
+    networks:
+      - my_rasp_network
+    restart: unless-stopped
 
-  # redis:
-  #   image: redis:latest
-  #   container_name: redis-server
-  #   ports:
-  #     - "6379:6379"
-  #   networks:
-  #     - my_rasp_network
-  #   restart: unless-stopped
+  redis:
+    image: redis:latest
+    container_name: redis-server
+    ports:
+      - "6379:6379"
+    networks:
+      - my_rasp_network
+    restart: unless-stopped
 
-  # db:
-  #   image: mysql:8.0
-  #   container_name: mysql
-  #   restart: unless-stopped
-  #   command: --default-authentication-plugin=mysql_native_password
-  #   env_file:
-  #     - /home/richie/private-secrets/mysql/.env
-  #   volumes:
-  #     - mysql_ubuntu_rasp_device:/var/lib/mysql
-  #   ports:
-  #     - "3306:3306"
-  #   networks:
-  #     - my_rasp_network
+  db:
+    image: mysql:8.0
+    container_name: mysql
+    restart: unless-stopped
+    command: --default-authentication-plugin=mysql_native_password
+    env_file:
+      - /home/richie/private-secrets/mysql/.env
+    volumes:
+      - mysql_ubuntu_rasp_device:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - my_rasp_network
 
 networks:
   my_rasp_network:
-    external: true
     driver: bridge
 
 volumes:
